@@ -1,5 +1,5 @@
 ---
-// 글 목록 카드
+// 글 목록 항목 (번호 인덱스)
 interface Post {
   id: string;
   data: {
@@ -15,9 +15,10 @@ interface Post {
 
 interface Props {
   post: Post;
+  index: number; // 1부터
 }
 
-const { post } = Astro.props;
+const { post, index } = Astro.props;
 const date = post.data.pubDate.toLocaleDateString('ko-KR', {
   year: 'numeric',
   month: 'long',
@@ -25,20 +26,16 @@ const date = post.data.pubDate.toLocaleDateString('ko-KR', {
 });
 ---
 
-<li>
-  <a class="post-card" href={`/posts/${post.id}/`}>
+<li class="post-entry">
+  <span class="num">{String(index).padStart(2, '0')}.</span>
+  <div class="entry-main">
+    <h2 class="title"><a href={`/posts/${post.id}/`}>{post.data.title}</a></h2>
     <div class="meta">
       <span>{date}</span>
-      <a class="chip" href={`/categories/${encodeURIComponent(post.data.category)}`}>{post.data.category}</a>
+      <a href={`/categories/${encodeURIComponent(post.data.category)}`}>{post.data.category}</a>
+      {post.data.tags.map((tag) => (
+        <a href={`/tags/${encodeURIComponent(tag)}`}>#{tag}</a>
+      ))}
     </div>
-    <h3>{post.data.title}</h3>
-    <p class="excerpt">{post.data.description}</p>
-    {post.data.tags.length ? (
-      <div class="meta tags">
-        {post.data.tags.map((tag) => (
-          <a class="chip" href={`/tags/${encodeURIComponent(tag)}`}>#{tag}</a>
-        ))}
-      </div>
-    ) : null}
-  </a>
+  </div>
 </li>

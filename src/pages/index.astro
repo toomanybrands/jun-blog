@@ -11,11 +11,12 @@ const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(
 
 <Base>
   <section class="hero">
+    <span class="label">Info</span>
     <h1>{SITE.name}</h1>
     <p>{SITE.description}</p>
   </section>
 
   <ul class="post-list">
-    {posts.map((post) => <PostCard post={post} />)}
+    {posts.map((post, i) => <PostCard post={post} index={i + 1} />)}
   </ul>
 </Base>

@@ -27,10 +27,11 @@ const { category, count, posts } = Astro.props;
 ---
 
 <Base title={`${category} · 카테고리`}>
-  <h1 class="page-title">
-    {category} <span class="count" style="font-size:.6em">{count}개</span>
-  </h1>
+  <div class="page-head">
+    <span class="label">카테고리</span>
+    <h1>{category} <span style="font-size:.5em;color:var(--muted);font-weight:400;margin-left:10px">{count}개</span></h1>
+  </div>
   <ul class="post-list">
-    {posts.map((post) => <PostCard post={post} />)}
+    {posts.map((post, i) => <PostCard post={post} index={i + 1} />)}
   </ul>
 </Base>

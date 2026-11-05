@@ -11,13 +11,15 @@ export async function getStaticPaths() {
     params: { slug: post.id },
     props: {
       post,
+      index: i + 1,
+      total: posts.length,
       next: posts[i - 1], // 더 새로운 글
       prev: posts[i + 1], // 더 오래된 글
     },
   }));
 }
 
-const { post, prev, next } = Astro.props;
+const { post, index, total, prev, next } = Astro.props;
 ---
 
-<Post post={post} prev={prev} next={next} />
+<Post post={post} index={index} total={total} prev={prev} next={next} />

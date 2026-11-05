@@ -7,9 +7,10 @@ import { SITE } from '../config';
 interface Props {
   title?: string;
   description?: string;
+  barSub?: string; // 상단 바에 표시할 부제 (예: "2/3  글 제목")
 }
 
-const { title = SITE.name, description = SITE.description } = Astro.props;
+const { title = SITE.name, description = SITE.description, barSub } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
@@ -27,11 +28,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content={SITE.name} />
     <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
-    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+KR:wght@400;500&display=swap"
       rel="stylesheet"
-      crossorigin
-      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v2.3.3/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
     />
     <title>{title}</title>
     <script is:inline>
@@ -48,8 +49,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   </head>
   <body>
     <header class="site-header">
-      <div class="header-inner">
-        <a class="site-title" href="/">{SITE.name}</a>
+      <div class="container header-inner">
+        <a class="bar-title" href="/">
+          <span>{SITE.name}</span>
+          {barSub ? <span class="bar-sub">{barSub}</span> : null}
+        </a>
         <div class="header-nav">
           <SearchBox />
           <nav>
@@ -65,9 +69,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     </main>
 
     <footer class="site-footer">
-      <div class="container">
-        © {new Date().getFullYear()} {SITE.author} · Built with
-        <a href="https://astro.build" target="_blank" rel="noopener">Astro</a>
+      <div class="container footer-inner">
+        <a href="/">{SITE.name}</a>
+        <span>© {new Date().getFullYear()} {SITE.author}</span>
       </div>
     </footer>
   </body>

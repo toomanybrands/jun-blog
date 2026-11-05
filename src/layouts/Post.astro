@@ -1,5 +1,5 @@
 ---
-// 개별 글 레이아웃
+// 개별 글 레이아웃 (에디토리얼 번호 인덱스 스타일)
 import Base from './Base.astro';
 import Giscus from '../components/Giscus.astro';
 import { render } from 'astro:content';
@@ -8,46 +8,71 @@ import { SITE } from '../config';
 
 interface Props {
   post: CollectionEntry<'posts'>;
-  prev?: CollectionEntry<'posts'>;
-  next?: CollectionEntry<'posts'>;
+  index: number; // 1부터 시작 (최신 = 1)
+  total: number;
+  prev?: CollectionEntry<'posts'>; // 더 오래된 글
+  next?: CollectionEntry<'posts'>; // 더 새로운 글
 }
 
-const { post, prev, next } = Astro.props;
+const { post, index, total, prev, next } = Astro.props;
 const { Content } = await render(post);
+const num = String(index).padStart(2, '0');
 const date = post.data.pubDate.toLocaleDateString('ko-KR', {
   year: 'numeric',
   month: 'long',
   day: 'numeric',
-  weekday: 'short',
 });
 ---
 
-<Base title={`${post.data.title} · ${SITE.name}`} description={post.data.description}>
-  <article class="post prose">
-    <header class="post-header">
-      <a class="chip" href={`/categories/${encodeURIComponent(post.data.category)}`}>
-        {post.data.category}
-      </a>
+<Base
+  title={`${post.data.title} · ${SITE.name}`}
+  description={post.data.description}
+  barSub={`${index}/${total}  ${post.data.title}`}
+>
+  <div class="post-head">
+    <span class="num">{num}.</span>
+    <div class="head-main">
       <h1>{post.data.title}</h1>
-      <p class="post-meta">
-        <time datetime={post.data.pubDate.toISOString()}>{date}</time>
-        {post.data.tags.map((tag) => (
-          <a class="chip" href={`/tags/${encodeURIComponent(tag)}`}>#{tag}</a>
-        ))}
-      </p>
-    </header>
-
-    <div class="post-body">
-      <Content />
+      <div class="post-meta">
+        <span>
+          {date}
+          <br />
+          <a href={`/categories/${encodeURIComponent(post.data.category)}`}>{post.data.category}</a>
+        </span>
+        <span class="tags">
+          {post.data.tags.map((tag) => (
+            <a href={`/tags/${encodeURIComponent(tag)}`}>#{tag}</a>
+          ))}
+        </span>
+      </div>
     </div>
+  </div>
 
-    <Giscus />
+  <div class="post-body">
+    <div class="content prose">
+      <Content />
+      <Giscus />
+    </div>
+  </div>
 
-    {prev || next ? (
-      <nav class="post-nav">
-        {prev ? <a href={`/posts/${prev.id}/`}>← {prev.data.title}</a> : <span></span>}
-        {next ? <a href={`/posts/${next.id}/`}>{next.data.title} →</a> : <span></span>}
-      </nav>
-    ) : null}
-  </article>
+  {prev || next ? (
+    <nav class="post-nav">
+      {prev ? (
+        <a href={`/posts/${prev.id}/`}>
+          <span class="num">← {String(index + 1).padStart(2, '0')}.</span>
+          <span class="nav-title">{prev.data.title}</span>
+        </a>
+      ) : (
+        <span></span>
+      )}
+      {next ? (
+        <a class="next" href={`/posts/${next.id}/`}>
+          <span class="num">{String(index - 1).padStart(2, '0')}.</span>
+          <span class="nav-title">{next.data.title} →</span>
+        </a>
+      ) : (
+        <span></span>
+      )}
+    </nav>
+  ) : null}
 </Base>

@@ -26,8 +26,11 @@ const { tag, posts } = Astro.props;
 ---
 
 <Base title={`#${tag} · 태그`}>
-  <h1 class="page-title"><a href="/tags">#</a>{tag}</h1>
+  <div class="page-head">
+    <span class="label"><a href="/tags">태그</a></span>
+    <h1>#{tag}</h1>
+  </div>
   <ul class="post-list">
-    {posts.map((post) => <PostCard post={post} />)}
+    {posts.map((post, i) => <PostCard post={post} index={i + 1} />)}
   </ul>
 </Base>
