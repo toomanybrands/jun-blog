@@ -1,0 +1,23 @@
+---
+import { getCollection } from 'astro:content';
+import Post from '../../layouts/Post.astro';
+
+export async function getStaticPaths() {
+  const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+  );
+
+  return posts.map((post, i) => ({
+    params: { slug: post.id },
+    props: {
+      post,
+      next: posts[i - 1], // 더 새로운 글
+      prev: posts[i + 1], // 더 오래된 글
+    },
+  }));
+}
+
+const { post, prev, next } = Astro.props;
+---
+
+<Post post={post} prev={prev} next={next} />

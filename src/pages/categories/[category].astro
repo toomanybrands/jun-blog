@@ -1,0 +1,36 @@
+---
+import Base from '../../layouts/Base.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+  );
+
+  const categories = new Map<string, number>();
+  for (const post of posts) {
+    categories.set(post.data.category, (categories.get(post.data.category) ?? 0) + 1);
+  }
+
+  return [...categories.entries()].map(([category, count]) => ({
+    params: { category },
+    props: {
+      category,
+      count,
+      posts: posts.filter((post) => post.data.category === category),
+    },
+  }));
+}
+
+const { category, count, posts } = Astro.props;
+---
+
+<Base title={`${category} · 카테고리`}>
+  <h1 class="page-title">
+    {category} <span class="count" style="font-size:.6em">{count}개</span>
+  </h1>
+  <ul class="post-list">
+    {posts.map((post) => <PostCard post={post} />)}
+  </ul>
+</Base>

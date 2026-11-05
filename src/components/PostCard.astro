@@ -1,0 +1,44 @@
+---
+// 글 목록 카드
+interface Post {
+  id: string;
+  data: {
+    title: string;
+    description: string;
+    pubDate: Date;
+    updatedDate?: Date;
+    category: string;
+    tags: string[];
+    draft: boolean;
+  };
+}
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const date = post.data.pubDate.toLocaleDateString('ko-KR', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<li>
+  <a class="post-card" href={`/posts/${post.id}/`}>
+    <div class="meta">
+      <span>{date}</span>
+      <a class="chip" href={`/categories/${encodeURIComponent(post.data.category)}`}>{post.data.category}</a>
+    </div>
+    <h3>{post.data.title}</h3>
+    <p class="excerpt">{post.data.description}</p>
+    {post.data.tags.length ? (
+      <div class="meta tags">
+        {post.data.tags.map((tag) => (
+          <a class="chip" href={`/tags/${encodeURIComponent(tag)}`}>#{tag}</a>
+        ))}
+      </div>
+    ) : null}
+  </a>
+</li>

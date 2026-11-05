@@ -1,0 +1,92 @@
+---
+// Giscus 댓글 — src/config.ts 의 giscus.repo 에 공개 GitHub 저장소를 설정하면 활성화됩니다.
+import { SITE } from '../config';
+
+const { repo, category } = SITE.giscus;
+---
+
+<div class="giscus" id="giscus"></div>
+
+{!repo && (
+  <p class="giscus-note">
+    💬 댓글 기능이 아직 비활성화되어 있어요. <code>src/config.ts</code>의 <code>giscus.repo</code>에
+    공개 GitHub 저장소(예: <code>jun/jun-blog</code>)를 넣으면 댓글이 활성화됩니다.
+  </p>
+)}
+
+<script is:inline define:vars={{ repo, category }}>
+  (function () {
+    var REPO = repo;
+    var CATEGORY = category;
+    var giscusURL = 'https://giscus.app/client.js';
+    var container = document.getElementById('giscus');
+    if (!container || !REPO) return;
+
+    var getRepoId = function (repo) {
+      return fetch('https://api.github.com/repos/' + repo)
+        .then(function (res) {
+          if (!res.ok) throw new Error('GitHub API error');
+          return res.json();
+        })
+        .then(function (data) {
+          return data.id;
+        });
+    };
+
+    var getCategory = function (repo, category) {
+      if (category === 'Announcements') {
+        return Promise.resolve({ id: '', name: 'Announcements' });
+      }
+      return fetch('https://api.github.com/repos/' + repo + '/discussions/categories', {
+        headers: { Accept: 'application/vnd.github+json' },
+      })
+        .then(function (res) {
+          if (!res.ok) throw new Error('GitHub API error');
+          return res.json();
+        })
+        .then(function (data) {
+          var found = data.find(function (c) {
+            return c.name === category;
+          });
+          if (!found) return { id: '', name: 'Announcements' };
+          return found;
+        });
+    };
+
+    var updateTheme = function (newTheme) {
+      var frame = container.querySelector('iframe.giscus-frame');
+      if (frame) {
+        frame.contentWindow.postMessage({ setConfig: { theme: newTheme } }, 'https://giscus.app');
+      }
+    };
+
+    window.addEventListener('themechange', function (e) {
+      updateTheme(e.detail === 'dark' ? 'dark' : 'light');
+    });
+
+    getRepoId(REPO)
+      .then(function (repoId) {
+        return getCategory(REPO, CATEGORY).then(function (cat) {
+          var s = document.createElement('script');
+          s.src = giscusURL;
+          s.async = true;
+          s.crossOrigin = 'anonymous';
+          s.setAttribute('data-repo', REPO);
+          s.setAttribute('data-repo-id', String(repoId));
+          s.setAttribute('data-category', cat.name);
+          s.setAttribute('data-category-id', cat.id);
+          s.setAttribute('data-mapping', 'og');
+          s.setAttribute('data-reactions-enabled', '1');
+          s.setAttribute('data-emit-metadata', '0');
+          s.setAttribute('data-input-position', 'top');
+          s.setAttribute('data-theme', document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light');
+          s.setAttribute('data-lang', 'ko');
+          container.appendChild(s);
+        });
+      })
+      .catch(function () {
+        container.innerHTML =
+          '<p style="color:var(--text-muted);font-size:.9rem">댓글을 불러올 수 없어요. 저장소가 공개(public) 상태인지, 또는 GitHub API에 문제가 없는지 확인하세요.</p>';
+      });
+  })();
+</script>
