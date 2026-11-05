@@ -1,22 +1,14 @@
 ---
-// 라이트/다크 테마 전환 버튼
+// 라이트/다크 테마 전환 — 채워진 작은 사각형 (참고 사이트 푸터 우측과 동일)
 ---
 
-<button class="theme-toggle" id="theme-toggle" title="테마 변경" aria-label="테마 변경">
-  🌙
-</button>
+<button class="theme-toggle" id="theme-toggle" title="테마 변경" aria-label="테마 변경"></button>
 
 <script>
   const btn = document.getElementById('theme-toggle') as HTMLButtonElement | null;
 
   if (btn && !btn.dataset.initialized) {
     btn.dataset.initialized = 'true';
-
-    const setIcon = (theme: string) => {
-      btn.textContent = theme === 'dark' ? '☀️' : '🌙';
-    };
-
-    setIcon(document.documentElement.dataset.theme ?? 'light');
 
     btn.addEventListener('click', () => {
       const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
@@ -26,7 +18,6 @@
       } catch (e) {
         /* ignore */
       }
-      setIcon(next);
       window.dispatchEvent(new CustomEvent('themechange', { detail: next }));
     });
   }

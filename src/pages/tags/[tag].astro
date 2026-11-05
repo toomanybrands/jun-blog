@@ -7,6 +7,7 @@ export async function getStaticPaths() {
   const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
   );
+  const all = posts;
 
   const tags = new Set<string>();
   for (const post of posts) {
@@ -18,11 +19,12 @@ export async function getStaticPaths() {
     props: {
       tag,
       posts: posts.filter((post) => post.data.tags.includes(tag)),
+      all,
     },
   }));
 }
 
-const { tag, posts } = Astro.props;
+const { tag, posts, all } = Astro.props;
 ---
 
 <Base title={`#${tag} · 태그`}>
@@ -30,7 +32,7 @@ const { tag, posts } = Astro.props;
     <span class="label"><a href="/tags">태그</a></span>
     <h1>#{tag}</h1>
   </div>
-  <ul class="post-list">
-    {posts.map((post, i) => <PostCard post={post} index={i + 1} />)}
+  <ul class="post-list" style="list-style:none;margin:0;padding:0">
+    {posts.map((post) => <PostCard post={post} index={all.findIndex((p) => p.id === post.id) + 1} />)}
   </ul>
 </Base>

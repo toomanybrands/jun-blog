@@ -12,6 +12,7 @@ export async function getStaticPaths() {
   for (const post of posts) {
     categories.set(post.data.category, (categories.get(post.data.category) ?? 0) + 1);
   }
+  const all = posts;
 
   return [...categories.entries()].map(([category, count]) => ({
     params: { category },
@@ -19,19 +20,20 @@ export async function getStaticPaths() {
       category,
       count,
       posts: posts.filter((post) => post.data.category === category),
+      all,
     },
   }));
 }
 
-const { category, count, posts } = Astro.props;
+const { category, count, posts, all } = Astro.props;
 ---
 
 <Base title={`${category} · 카테고리`}>
   <div class="page-head">
     <span class="label">카테고리</span>
-    <h1>{category} <span style="font-size:.5em;color:var(--muted);font-weight:400;margin-left:10px">{count}개</span></h1>
+    <h1>{category} <span style="font-size:.5em;color:var(--fg-40);font-weight:400;margin-left:10px">{count}개</span></h1>
   </div>
-  <ul class="post-list">
-    {posts.map((post, i) => <PostCard post={post} index={i + 1} />)}
+  <ul class="post-list" style="list-style:none;margin:0;padding:0">
+    {posts.map((post) => <PostCard post={post} index={all.findIndex((p) => p.id === post.id) + 1} />)}
   </ul>
 </Base>

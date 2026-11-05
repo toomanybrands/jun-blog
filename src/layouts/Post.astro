@@ -1,5 +1,5 @@
 ---
-// 개별 글 레이아웃 (에디토리얼 번호 인덱스 스타일)
+// 개별 글 페이지 (홈과 동일한 프로젝트 섹션 스타일)
 import Base from './Base.astro';
 import Giscus from '../components/Giscus.astro';
 import { render } from 'astro:content';
@@ -16,50 +16,57 @@ interface Props {
 
 const { post, index, total, prev, next } = Astro.props;
 const { Content } = await render(post);
-const num = String(index).padStart(2, '0');
-const date = post.data.pubDate.toLocaleDateString('ko-KR', {
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-});
+const pad = (n: number) => String(n).padStart(2, '0');
+const fmt = (d: Date) =>
+  d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+const chars = (body: string) => body.replace(/[#*`>\[\]!|-]/g, '').replace(/\s+/g, '').length;
 ---
 
 <Base
   title={`${post.data.title} · ${SITE.name}`}
   description={post.data.description}
-  barSub={`${index}/${total}  ${post.data.title}`}
 >
-  <div class="post-head">
-    <span class="num">{num}.</span>
-    <div class="head-main">
-      <h1>{post.data.title}</h1>
-      <div class="post-meta">
+  <section id={`post-${index}`} class="project">
+    <span class="num">{pad(index)}.</span>
+    <div class="proj-main">
+      <div class="proj-top">
+        <h2>{post.data.title}</h2>
+        <span class="col-label">작성일</span>
+      </div>
+      <div class="meta2">
         <span>
-          {date}
+          {fmt(post.data.pubDate)}
           <br />
           <a href={`/categories/${encodeURIComponent(post.data.category)}`}>{post.data.category}</a>
         </span>
-        <span class="tags">
-          {post.data.tags.map((tag) => (
-            <a href={`/tags/${encodeURIComponent(tag)}`}>#{tag}</a>
+        <span>
+          {post.data.tags.map((t) => (
+            <a href={`/tags/${encodeURIComponent(t)}`}>
+              #{t}{' '}
+            </a>
           ))}
+          <br />
+          {chars(post.body)}자
+          {post.data.updatedDate ? (
+            <>
+              <br />
+              수정 {fmt(post.data.updatedDate)}
+            </>
+          ) : null}
         </span>
       </div>
+      <div class="proj-body prose">
+        <Content />
+        <Giscus />
+      </div>
     </div>
-  </div>
-
-  <div class="post-body">
-    <div class="content prose">
-      <Content />
-      <Giscus />
-    </div>
-  </div>
+  </section>
 
   {prev || next ? (
     <nav class="post-nav">
       {prev ? (
         <a href={`/posts/${prev.id}/`}>
-          <span class="num">← {String(index + 1).padStart(2, '0')}.</span>
+          <span class="num">← {pad(index + 1)}.</span>
           <span class="nav-title">{prev.data.title}</span>
         </a>
       ) : (
@@ -67,7 +74,7 @@ const date = post.data.pubDate.toLocaleDateString('ko-KR', {
       )}
       {next ? (
         <a class="next" href={`/posts/${next.id}/`}>
-          <span class="num">{String(index - 1).padStart(2, '0')}.</span>
+          <span class="num">{pad(index - 1)}.</span>
           <span class="nav-title">{next.data.title} →</span>
         </a>
       ) : (

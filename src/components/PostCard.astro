@@ -1,5 +1,5 @@
 ---
-// 글 목록 항목 (번호 인덱스)
+// 글 목록 행 (번호 인덱스 + 제목 + 메타)
 interface Post {
   id: string;
   data: {
@@ -15,10 +15,11 @@ interface Post {
 
 interface Props {
   post: Post;
-  index: number; // 1부터
+  index: number; // 홈 전체 순서 기준 1부터
 }
 
 const { post, index } = Astro.props;
+const pad = (n: number) => String(n).padStart(2, '0');
 const date = post.data.pubDate.toLocaleDateString('ko-KR', {
   year: 'numeric',
   month: 'long',
@@ -26,16 +27,28 @@ const date = post.data.pubDate.toLocaleDateString('ko-KR', {
 });
 ---
 
-<li class="post-entry">
-  <span class="num">{String(index).padStart(2, '0')}.</span>
-  <div class="entry-main">
-    <h2 class="title"><a href={`/posts/${post.id}/`}>{post.data.title}</a></h2>
-    <div class="meta">
-      <span>{date}</span>
-      <a href={`/categories/${encodeURIComponent(post.data.category)}`}>{post.data.category}</a>
-      {post.data.tags.map((tag) => (
-        <a href={`/tags/${encodeURIComponent(tag)}`}>#{tag}</a>
-      ))}
+<li class="project">
+  <span class="num">{pad(index)}.</span>
+  <div class="proj-main">
+    <div class="proj-top">
+      <h2>
+        <a href={`/#post-${index}`}>{post.data.title}</a>
+      </h2>
+      <span class="col-label">작성일</span>
+    </div>
+    <div class="meta2">
+      <span>
+        {date}
+        <br />
+        <a href={`/categories/${encodeURIComponent(post.data.category)}`}>{post.data.category}</a>
+      </span>
+      <span>
+        {post.data.tags.map((tag) => (
+          <a href={`/tags/${encodeURIComponent(tag)}`}>
+            #{tag}{' '}
+          </a>
+        ))}
+      </span>
     </div>
   </div>
 </li>

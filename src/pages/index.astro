@@ -1,22 +1,69 @@
 ---
 import Base from '../layouts/Base.astro';
-import PostCard from '../components/PostCard.astro';
 import { getCollection } from 'astro:content';
+import { render } from 'astro:content';
 import { SITE } from '../config';
 
 const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
+const rendered = await Promise.all(posts.map((p) => render(p)));
+
+const pad = (n: number) => String(n).padStart(2, '0');
+const fmt = (d: Date) =>
+  d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+const reading = (body: string) => {
+  const words = body.replace(/[#*`>\[\]!|-]/g, ' ').replace(/\s+/g, ' ').trim();
+  return Math.max(1, Math.round(words.length / 300));
+};
+const chars = (body: string) => body.replace(/[#*`>\[\]!|-]/g, '').replace(/\s+/g, '').length;
 ---
 
 <Base>
-  <section class="hero">
-    <span class="label">Info</span>
-    <h1>{SITE.name}</h1>
-    <p>{SITE.description}</p>
+  <section id="info" class="info-block">
+    <p class="info-text">{SITE.description}</p>
+    <div class="info-links">
+      <span>Profile ({SITE.author})</span>
+      <a href="mailto:hello@example.com">hello@example.com</a>
+      <a href="https://instagram.com/" target="_blank" rel="noopener">Instagram</a>
+    </div>
   </section>
 
-  <ul class="post-list">
-    {posts.map((post, i) => <PostCard post={post} index={i + 1} />)}
-  </ul>
+  {posts.map((post, i) => {
+    const { Content } = rendered[i];
+    return (
+      <section id={`post-${i + 1}`} class="project">
+        <span class="num">{pad(i + 1)}.</span>
+        <div class="proj-main">
+          <div class="proj-top">
+            <h2>{post.data.title}</h2>
+            <span class="col-label">작성일</span>
+          </div>
+          <div class="meta2">
+            <span>
+              {fmt(post.data.pubDate)}
+              <br />
+              {post.data.category}
+              <br />
+              {reading(post.body)}분 읽기
+            </span>
+            <span>
+              {post.data.tags.map((t) => `#${t}`).join(' ')}
+              <br />
+              {chars(post.body)}자
+              {post.data.updatedDate ? (
+                <>
+                  <br />
+                  수정 {fmt(post.data.updatedDate)}
+                </>
+              ) : null}
+            </span>
+          </div>
+          <div class="proj-body prose">
+            <Content />
+          </div>
+        </div>
+      </section>
+    );
+  })}
 </Base>

@@ -2,16 +2,20 @@
 import '../styles/global.css';
 import ThemeToggle from '../components/ThemeToggle.astro';
 import SearchBox from '../components/SearchBox.astro';
+import { getCollection } from 'astro:content';
 import { SITE } from '../config';
 
 interface Props {
   title?: string;
   description?: string;
-  barSub?: string; // 상단 바에 표시할 부제 (예: "2/3  글 제목")
 }
 
-const { title = SITE.name, description = SITE.description, barSub } = Astro.props;
+const { title = SITE.name, description = SITE.description } = Astro.props;
+const posts = (await getCollection('posts', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
 <!doctype html>
@@ -31,7 +35,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Noto+Sans+KR:wght@400;500&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Noto+Sans+KR:wght@400;500&display=swap"
       rel="stylesheet"
     />
     <title>{title}</title>
@@ -48,31 +52,79 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     </script>
   </head>
   <body>
-    <header class="site-header">
-      <div class="container header-inner">
-        <a class="bar-title" href="/">
-          <span>{SITE.name}</span>
-          {barSub ? <span class="bar-sub">{barSub}</span> : null}
-        </a>
-        <div class="header-nav">
-          <SearchBox />
-          <nav>
-            <a href="/tags">태그</a>
-          </nav>
-          <ThemeToggle />
-        </div>
+    <!-- 고정 인덱스(좌측) -->
+    <aside class="site-index">
+      <span class="index-label">Index</span>
+      <ul class="index-list">
+        <li>
+          <a href="/#info"><span class="idx">00.</span><span class="it">소개</span></a>
+        </li>
+        {posts.map((post, i) => (
+          <li>
+            <a href={`/#post-${i + 1}`}>
+              <span class="idx">{pad(i + 1)}.</span>
+              <span class="it">{post.data.title}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+      <div class="index-search">
+        <SearchBox />
       </div>
-    </header>
+    </aside>
 
-    <main class="container">
+    <!-- 우측 콘텐츠 열 -->
+    <main class="content-col">
       <slot />
     </main>
 
+    <!-- 고정 푸터: 시계 + 이름 + 테마 전환 -->
     <footer class="site-footer">
-      <div class="container footer-inner">
-        <a href="/">{SITE.name}</a>
-        <span>© {new Date().getFullYear()} {SITE.author}</span>
+      <div class="footer-left">
+        <span class="clock" id="clock">--:--:--</span>
+        <span>{SITE.name}</span>
       </div>
+      <ThemeToggle />
     </footer>
+
+    <script is:inline>
+      // 푸터 라이브 시계 (참고 사이트와 동일)
+      (function () {
+        function tick() {
+          var el = document.getElementById('clock');
+          if (!el) return;
+          var d = new Date();
+          el.textContent = [d.getHours(), d.getMinutes(), d.getSeconds()]
+            .map(function (n) { return String(n).padStart(2, '0'); })
+            .join(':');
+        }
+        tick();
+        setInterval(tick, 1000);
+      })();
+
+      // 인덱스 클릭 → 같은 페이지면 부드럽게 스크롤, 아니면 이동
+      (function () {
+        document.querySelectorAll('.index-list a').forEach(function (a) {
+          a.addEventListener('click', function (e) {
+            var href = a.getAttribute('href') || '';
+            var target = null;
+            try {
+              target = new URL(href, location.href);
+            } catch (err) {
+              return;
+            }
+            if (target.pathname !== location.pathname) return; // 다른 페이지 → 브라우저 기본 동작
+            var hash = target.hash;
+            if (!hash) return;
+            e.preventDefault();
+            var el = document.querySelector(hash);
+            if (el) {
+              history.pushState(null, '', hash);
+              el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          });
+        });
+      })();
+    </script>
   </body>
 </html>
