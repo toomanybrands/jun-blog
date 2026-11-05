@@ -578,6 +578,17 @@ a:hover {
   font-variant-numeric: tabular-nums;
 }
 
+.footer-write {
+  color: var(--fg-40);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.footer-write:hover {
+  color: var(--fg-85);
+  border-bottom-color: var(--fg-85);
+}
+
 /* ---------- 테마 전환(채워진 사각형) ---------- */
 .theme-toggle {
   width: 12px;

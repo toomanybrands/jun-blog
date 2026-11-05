@@ -13,6 +13,26 @@ npm run preview  # 빌드 결과 미리보기
 
 ## 글쓰기
 
+### 모바일에서 쓰기 (권장) — `/write` 페이지
+
+블로그 하단 **쓰기** 링크(또는 `/write`)에서 폰으로 바로 글을 올릴 수 있어요.
+
+1. **한 번만**: GitHub 토큰 만들기
+   - github.com → **Settings → Developer settings → Personal access tokens → Fine-grained tokens** → *Generate new token*
+   - Repository access: **이 블로그 리포만** 선택
+   - Permissions: **Contents → Read and write** 만 체크 (나머지는 두지 않기)
+   - 만료는 30일 등으로 짧게 두고, 만료되면 여기서 재생성
+2. `/write` 페이지에서 리포(`계정명/jun-blog`) + 브랜치(`main`) + 토큰 입력 → **저장**
+   - 토큰은 브라우저(localStorage)에만 저장되고, api.github.com으로만 전송됩니다
+3. **+ 새 글** → 제목/날짜/카테고리/태그/본문 작성
+   - **사진 추가**로 갤러리에서 사진 선택 (자동 압축, 1600px 이하)
+   - 본문에 `{사진}` 을 넣으면 추가한 순서대로 그 자리에 사진이 들어가고, 남은 사진은 글 끝에 붙습니다
+4. **저장 (GitHub push)** → GitHub에 커밋 → Vercel이 1~2분 뒤 자동 재배포
+
+기존 글은 목록에서 **수정/삭제** 할 수 있어요. (HEIC 사진은 iPhone 사진 앱에서 JPEG로 저장한 뒤 선택)
+
+### 직접 파일로 쓰기
+
 `src/content/posts/` 폴더에 Markdown 파일을 만들면 됩니다.
 
 ```markdown
