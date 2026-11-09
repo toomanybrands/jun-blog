@@ -9,7 +9,7 @@ export const SITE = {
   // 예: repo: 'jun/jun-blog'
   // 저장소 설정 방법: https://giscus.app (Korean, 저장소 이름 입력)
   giscus: {
-    repo: '',
-    category: 'Announcements',
+    repo: 'toomanybrands/jun-blog',
+    category: 'General',
   },
 } as const;
