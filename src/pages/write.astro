@@ -93,7 +93,7 @@ const cats = categories.join(',');
       .post-row .acts button:hover { color: var(--fg-85); }
       .phos { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
       .pho { position: relative; width: 84px; }
-      .pho img { width: 84px; height: 84px; object-fit: cover; display: block; border: 1px solid var(--border); }
+      .pho img { width: 84px; height: 84px; object-fit: contain; display: block; border: 1px solid var(--border); background: var(--bg); }
       .pho .x {
         position: absolute; top: -8px; right: -8px; width: 24px; height: 24px;
         background: var(--bg); border: 1px solid var(--border); color: var(--fg-85);
@@ -186,7 +186,7 @@ const cats = categories.join(',');
           <label class="label">사진</label>
           <button class="file-add" id="photoBtn" type="button">+ 사진 추가 (갤러리)</button>
           <input type="file" id="photoInput" accept="image/*" multiple />
-          <div class="pho" id="photoBox"></div>
+          <div class="phos" id="photoBox"></div>
           <p class="hint">
             본문에 <code>{"{사진}"}</code> 을 넣고 싶은 위치에 쓰면, 추가한 순서대로
             사진 1, 사진 2… 로 들어갑니다. 남은 사진은 글 끝에 붙습니다.
