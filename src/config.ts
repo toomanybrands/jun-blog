@@ -1,7 +1,7 @@
 // 사이트 전체 설정 — 사이트 이름·설명·댓글(Giscus)을 여기서 관리합니다.
 export const SITE = {
-  name: '준의 블로그',
-  description: '준이 개발과 일상을 기록하는 블로그',
+  name: 'junfourteen',
+  description: '성준 일상',
   author: '준',
 
   // Giscus 댓글 설정

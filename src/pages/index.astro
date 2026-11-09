@@ -12,10 +12,6 @@ const rendered = await Promise.all(posts.map((p) => render(p)));
 const pad = (n: number) => String(n).padStart(2, '0');
 const fmt = (d: Date) =>
   d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
-const reading = (body?: string) => {
-  const words = (body || '').replace(/[#*`>\[\]!|-]/g, ' ').replace(/\s+/g, ' ').trim();
-  return Math.max(1, Math.round(words.length / 300));
-};
 const chars = (body?: string) => (body || '').replace(/[#*`>\[\]!|-]/g, '').replace(/\s+/g, '').length;
 ---
 
@@ -24,8 +20,7 @@ const chars = (body?: string) => (body || '').replace(/[#*`>\[\]!|-]/g, '').repl
     <p class="info-text">{SITE.description}</p>
     <div class="info-links">
       <span>Profile ({SITE.author})</span>
-      <a href="mailto:hello@example.com">hello@example.com</a>
-      <a href="https://instagram.com/" target="_blank" rel="noopener">Instagram</a>
+      <a href="mailto:junfourteen@team-node.com">junfourteen@team-node.com</a>
     </div>
   </section>
 
@@ -44,8 +39,6 @@ const chars = (body?: string) => (body || '').replace(/[#*`>\[\]!|-]/g, '').repl
               {fmt(post.data.pubDate)}
               <br />
               {post.data.category}
-              <br />
-              {reading(post.body)}분 읽기
             </span>
             <span>
               {post.data.tags.map((t) => `#${t}`).join(' ')}
