@@ -357,7 +357,7 @@ const cats = categories.join(',');
               photos.push({ dataUrl: url });
               return '{사진}';
             })
-            .replace(/\n{3,}/g, '\n\n');
+            .replace(/(\r?\n){3,}/g, '\n\n');
         }
 
         function openEditor(post) {
