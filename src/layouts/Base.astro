@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
 import ThemeToggle from '../components/ThemeToggle.astro';
-import SearchBox from '../components/SearchBox.astro';
+// import SearchBox from '../components/SearchBox.astro'; // 검색 기능 일시 비활성화
 import { getCollection } from 'astro:content';
 import { SITE } from '../config';
 
@@ -68,9 +68,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
           </li>
         ))}
       </ul>
-      <div class="index-search">
-        <SearchBox />
-      </div>
+      <!-- 검색 기능 일시 비활성화 (요청 시 <SearchBox /> 다시 렌더링) -->
     </aside>
 
     <!-- 우측 콘텐츠 열 -->
