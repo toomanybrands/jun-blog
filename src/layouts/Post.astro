@@ -1,7 +1,7 @@
 ---
 // 개별 글 페이지 (홈과 동일한 프로젝트 섹션 스타일)
 import Base from './Base.astro';
-import Giscus from '../components/Giscus.astro';
+import Comments from '../components/Comments.astro';
 import { render } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 import { SITE } from '../config';
@@ -57,7 +57,7 @@ const chars = (body?: string) => (body || '').replace(/[#*`>\[\]!|-]/g, '').repl
       </div>
       <div class="proj-body prose">
         <Content />
-        <Giscus />
+        <Comments postId={post.id} />
       </div>
     </div>
   </section>

@@ -1,0 +1,259 @@
+---
+// 로그인 없는 댓글 — 댓글은 GitHub 리포 comments/<postId>.json에 저장,
+// 읽기는 raw.githubusercontent.com 에서 바로 (빌드/배포 지연 없음)
+const { postId } = Astro.props;
+const rawUrl =
+  'https://raw.githubusercontent.com/toomanybrands/jun-blog/main/comments/' +
+  encodeURIComponent(String(postId).toLowerCase()) +
+  '.json';
+---
+
+<section id="comments" class="comments" data-post-id={String(postId).toLowerCase()} data-raw-url={rawUrl}>
+  <div class="c-head">
+    <span class="c-label">댓글</span>
+    <span class="c-count" id="cCount">0</span>
+  </div>
+  <div class="c-list" id="cList">
+    <p class="c-empty" id="cEmpty">아직 댓글이 없어요. 첫 댓글을 남겨보세요.</p>
+  </div>
+  <form id="cForm" class="c-form" novalidate>
+    <input type="text" id="cName" name="name" placeholder="이름 (안 쓰면 익명)" maxlength="50" autocomplete="name" />
+    <textarea id="cBody" name="body" placeholder="댓글을 입력하세요" maxlength="2000" rows="3"></textarea>
+    <input type="text" id="cHp" name="website" class="c-hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+    <button type="submit" id="cSend">전송</button>
+  </form>
+  <p class="c-msg" id="cMsg" role="status"></p>
+</section>
+
+<style is:global>
+  #comments {
+    margin-top: 56px;
+  }
+  #comments .c-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+  }
+  #comments .c-label {
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--fg);
+  }
+  #comments .c-count {
+    font-size: 12px;
+    color: var(--fg-40);
+  }
+  #comments .c-empty {
+    font-size: 14px;
+    color: var(--fg-40);
+    padding: 16px 0;
+  }
+  #comments .c-item {
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  #comments .c-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: baseline;
+  }
+  #comments .c-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--fg-85);
+  }
+  #comments .c-date {
+    font-size: 12px;
+    color: var(--fg-40);
+    white-space: nowrap;
+  }
+  #comments .c-body {
+    margin-top: 6px;
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: var(--fg-75);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  #comments .c-form {
+    margin-top: 24px;
+    display: grid;
+    gap: 14px;
+  }
+  #comments .c-form input[type='text'],
+  #comments .c-form textarea {
+    font: inherit;
+    font-size: 16px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    padding: 8px 0;
+    color: var(--fg);
+    border-radius: 0;
+    width: 100%;
+  }
+  #comments .c-form textarea {
+    resize: vertical;
+    min-height: 2.6em;
+  }
+  #comments .c-form input[type='text']:focus,
+  #comments .c-form textarea:focus {
+    outline: none;
+    border-bottom-color: var(--fg);
+  }
+  #comments .c-form input::placeholder,
+  #comments .c-form textarea::placeholder {
+    color: var(--fg-40);
+  }
+  #comments .c-form button {
+    justify-self: start;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: inherit;
+    background: none;
+    border: 1px solid var(--fg);
+    color: var(--fg);
+    padding: 9px 20px;
+    cursor: pointer;
+  }
+  #comments .c-form button:hover {
+    background: var(--fg);
+    color: var(--bg);
+  }
+  #comments .c-hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  #comments .c-msg {
+    font-size: 12.5px;
+    color: var(--fg-40);
+    margin-top: 10px;
+    min-height: 1em;
+  }
+</style>
+
+<script>
+  (function () {
+    var sec = document.getElementById('comments');
+    if (!sec) return;
+    var RAW = sec.getAttribute('data-raw-url');
+    var listEl = document.getElementById('cList');
+    var countEl = document.getElementById('cCount');
+    var emptyEl = document.getElementById('cEmpty');
+    var form = document.getElementById('cForm');
+    var nameEl = document.getElementById('cName');
+    var bodyEl = document.getElementById('cBody');
+    var msg = document.getElementById('cMsg');
+    var loadTs = Date.now();
+    var fmt = new Intl.DateTimeFormat('ko-KR', { month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+
+    function makeItem(c) {
+      var d = document.createElement('div');
+      d.className = 'c-item';
+      var top = document.createElement('div');
+      top.className = 'c-top';
+      var nm = document.createElement('span');
+      nm.className = 'c-name';
+      nm.textContent = c.name || '익명'; // textContent — HTML 삽입 불가
+      var dt = document.createElement('span');
+      dt.className = 'c-date';
+      try {
+        dt.textContent = fmt.format(new Date(c.date));
+      } catch (e) {
+        dt.textContent = '';
+      }
+      top.appendChild(nm);
+      top.appendChild(dt);
+      var bd = document.createElement('div');
+      bd.className = 'c-body';
+      bd.textContent = c.body;
+      d.appendChild(top);
+      d.appendChild(bd);
+      return d;
+    }
+
+    function render(list) {
+      listEl.innerHTML = '';
+      if (!list.length) {
+        countEl.textContent = '0';
+        listEl.appendChild(emptyEl);
+        return;
+      }
+      countEl.textContent = String(list.length);
+      list.forEach(function (c) {
+        listEl.appendChild(makeItem(c));
+      });
+    }
+
+    function load() {
+      fetch(RAW, { cache: 'no-store' })
+        .then(function (r) {
+          if (r.status === 404) return { list: [] };
+          return r.json();
+        })
+        .then(function (d) {
+          render((d && d.list) || []);
+        })
+        .catch(function () {
+          /* 로딩 실패 시 조용히 (빈 상태 유지) */
+        });
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var body = bodyEl.value.trim();
+      if (!body) {
+        msg.textContent = '댓글을 입력해주세요.';
+        return;
+      }
+      msg.textContent = '등록 중…';
+      var payload = {
+        postId: sec.getAttribute('data-post-id'),
+        name: nameEl.value,
+        body: body,
+        hp: document.getElementById('cHp').value,
+        ts: loadTs,
+      };
+      var attempt = 0;
+      function send() {
+        fetch('/api/comments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+          .then(function (r) {
+            return r.json().then(function (j) {
+              return { status: r.status, j: j };
+            });
+          })
+          .then(function (x) {
+            if (x.j && x.j.ok) {
+              nameEl.value = '';
+              bodyEl.value = '';
+              msg.textContent = '댓글이 등록됐어요!';
+              load();
+              return;
+            }
+            if (x.status === 409 && attempt < 1) {
+              attempt++;
+              return send(); // 동시 충돌 1회 재시도
+            }
+            msg.textContent =
+              x.status === 429 ? '댓글이 너무 많아요. 잠시 후 다시 시도해주세요.' : '댓글을 등록하지 못했어요. 다시 시도해주세요.';
+          })
+          .catch(function () {
+            msg.textContent = '댓글을 등록하지 못했어요. 다시 시도해주세요.';
+          });
+      }
+      send();
+    });
+
+    load();
+  })();
+</script>
