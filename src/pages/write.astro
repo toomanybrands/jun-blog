@@ -348,6 +348,18 @@ const cats = categories.join(',');
         }
 
         // ---------- 에디터 ----------
+        // 저장된 본문에 담긴 사진(data URL)을 사진 영역으로 꺼내와서
+        // textarea에는 {사진} 플레이스홀더만 보이게 한다.
+        // (그냥 두면 base64 수십 KB가 코드처럼 떠서 사진인지 모르겠음)
+        function extractPhotosFromBody(body) {
+          return body
+            .replace(/!\[[^\]]*\]\((data:image\/[a-z+]+;base64,[A-Za-z0-9+/=]+)\)/g, function (m, url) {
+              photos.push({ dataUrl: url });
+              return '{사진}';
+            })
+            .replace(/\n{3,}/g, '\n\n');
+        }
+
         function openEditor(post) {
           editing = post ? { id: post.id } : null;
           $('editingLabel').textContent = post ? '수정 중 — ' + post.title : '새 글쓰기';
@@ -356,8 +368,8 @@ const cats = categories.join(',');
           $('fCat').value = post ? post.category : '';
           $('fTags').value = post ? post.tags.join(', ') : '';
           $('fDraft').checked = post ? !!post.draft : false;
-          $('fBody').value = post ? (post.body || '') : '';
           photos = [];
+          $('fBody').value = post ? extractPhotosFromBody(post.body || '') : '';
           renderPhotos();
           $('saveStatus').textContent = '';
           editorSection.classList.remove('hidden');
