@@ -84,7 +84,7 @@ export default async function handler(req, res) {
         let slug = base;
         let n = 2;
         while (used.has(slug)) slug = base + '-' + n++;
-        path = BASE + '/' + slug;
+        path = BASE + '/' + slug + '.md';
       }
       const b64 = Buffer.from(b.markdown, 'utf8').toString('base64');
       let sha = null;
