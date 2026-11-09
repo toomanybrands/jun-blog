@@ -19,7 +19,7 @@ const { Content } = await render(post);
 const pad = (n: number) => String(n).padStart(2, '0');
 const fmt = (d: Date) =>
   d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
-const chars = (body: string) => body.replace(/[#*`>\[\]!|-]/g, '').replace(/\s+/g, '').length;
+const chars = (body?: string) => (body || '').replace(/[#*`>\[\]!|-]/g, '').replace(/\s+/g, '').length;
 ---
 
 <Base
