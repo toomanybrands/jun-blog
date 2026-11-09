@@ -34,23 +34,9 @@ const { repo, category } = SITE.giscus;
     };
 
     var getCategory = function (repo, category) {
-      if (category === 'Announcements') {
-        return Promise.resolve({ id: '', name: 'Announcements' });
-      }
-      return fetch('https://api.github.com/repos/' + repo + '/discussions/categories', {
-        headers: { Accept: 'application/vnd.github+json' },
-      })
-        .then(function (res) {
-          if (!res.ok) throw new Error('GitHub API error');
-          return res.json();
-        })
-        .then(function (data) {
-          var found = data.find(function (c) {
-            return c.name === category;
-          });
-          if (!found) return { id: '', name: 'Announcements' };
-          return found;
-        });
+      // GitHub categories REST API는 폐기됨(모든 리포 404) —
+      // 카테고리 이름을 그대로 넘기면 giscus.app 서버에서 ID를 해석한다.
+      return Promise.resolve({ id: '', name: category });
     };
 
     var updateTheme = function (newTheme) {
