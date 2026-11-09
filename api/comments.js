@@ -129,7 +129,8 @@ export default async function handler(req, res) {
     const comment = { id: randomUUID(), name, body, date: new Date().toISOString() };
     list.push(comment);
     await writeComments(postId, list, sha);
-    res.json({ ok: true, comment });
+    // 응답에 전체 목록 포함 → 클라이언트가 raw CDN 전파를 기다리지 않고 즉시 표시
+    res.json({ ok: true, list });
   } catch (e) {
     // 409 = 동시 충돌 → 클라이언트가 1회 재시도
     res.status(e.status === 409 ? 409 : 500).json({ ok: false, error: e.message || String(e) });

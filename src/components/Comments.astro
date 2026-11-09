@@ -237,7 +237,8 @@ const rawUrl =
               nameEl.value = '';
               bodyEl.value = '';
               msg.textContent = '댓글이 등록됐어요!';
-              load();
+              if (Array.isArray(x.j.list)) render(x.j.list); // 즉시 표시
+              else load();
               return;
             }
             if (x.status === 409 && attempt < 1) {
